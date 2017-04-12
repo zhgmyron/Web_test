@@ -9,6 +9,12 @@ class NewVisitorTest(unittest.TestCase):
 
     def tearDown(self):
         self.driver.quit()
+
+    def check_for_row_in_list_table(self,row_text):
+        table = self.driver.find_element_by_id('id_list_table')
+        rows= table.find_elements_by_tag_name('tr')
+        self.assertIn(row_text,[row.text for row in rows])
+
     def test_can_start_list_and_retrieve_it_later(self):
         self.driver.get('http://localhost:8000')
         self.assertIn( 'To-Do lists', self.driver.title)
@@ -17,12 +23,14 @@ class NewVisitorTest(unittest.TestCase):
         inputbox= self.driver.find_element_by_id('id_new_item')
         self.assertEqual(inputbox.get_attribute('placeholder'),'Enter a to-do item')
         inputbox.send_keys('Buy peacock feathers')
-
         inputbox.send_keys(Keys.ENTER)
 
-        table = self.driver.find_element_by_id('id_list_table')
-        rows= table.find_elements_by_tag_name('tr')
-        self.assertTrue(any(row.text == '1: Buy peacock feathers' for row in rows), "New to-do item did not appear in table")
+        inputbox= self.driver.find_element_by_id('id_new_item')
+        inputbox.send_keys('Use peacock feathers to make a fly')
+        inputbox.send_keys(Keys.ENTER)
+
+        self.check_for_row_in_list_table('1: Buy peacock feathers')
+        self.check_for_row_in_list_table("2: Use peacock feathers to make a fly")
 
 
 
